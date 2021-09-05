@@ -15,8 +15,9 @@ import Preloader from './components/Preloader';
 
 function App() {
 
-const [ todos, setTodos ] = useState(null);
 const [ todo, setTodo ] = useState({title:'', content:''});
+const [ todos, setTodos ] = useState(null);
+const [ currentId, setCurrentId ] = useState(0);
 
 const fetchData = async() => {
   const result = await readTodos();
@@ -25,36 +26,55 @@ const fetchData = async() => {
   console.log(todos);
 }
 
-useEffect( () => {
+useEffect( async () => {
+  console.log("currentId", currentId);
+  const result = currentId!==0 ? todos.find( i => i._id === currentId ) : {title:'', content:''};
+  setTodo(result);
+  await document.getElementById("form_description").focus();
+  await document.getElementById("form_title").focus();
+}, [currentId]);
+
+useEffect( async () => {
   fetchData();
+  window.addEventListener('keydown', handleKeyDown);
 }, []);
+
+function handleKeyDown(e) {
+  if (e.keyCode === 27) clear();
+}
+
+function clear() {
+  setTodo({title:'', content: ''});
+  setCurrentId(0);
+}
 
 const onSubmitHandler = async (e) => {
   e.preventDefault();
   const result = await createTodo(todo);
   console.log(result);
-  fetchData();
+  //fetchData();
+  setTodos([...todos, result.data]);
 }
 
   return (
     <div className="container">
       <div className="row">
-
+      <pre>{JSON.stringify(todo)}</pre>
       <form className="col s12" onSubmit={onSubmitHandler}>
           <div className="row">
             <div className="input-field col s6">
               <i className="material-icons prefix">title</i>
-              <input id="icon_prefix" type="text" className="validate"
+              <input id="form_title" type="text" className="validate" value={todo.title}
                 onChange={e => setTodo({ ...todo, title: e.target.value })}
               />
-              <label htmlFor="icon_prefix">Title</label>
+              <label htmlFor="form_title">Title</label>
             </div>
             <div className="input-field col s6">
               <i className="material-icons prefix">description</i>
-              <input id="description" type="tel" className="validate"
+              <input id="form_description" type="tel" className="validate" value={todo.content}
                 onChange={e => setTodo({ ...todo, content: e.target.value })}
               />
-              <label htmlFor="description">Content</label>
+              <label htmlFor="form_description">Content</label>
             </div>
           </div>
           <div className="row right-align">
@@ -63,12 +83,10 @@ const onSubmitHandler = async (e) => {
         </form>
 
         { !todos ? <Preloader /> : 
-        <ul>
+        <ul className="collection">
           { todos.map(item => (
-            <li>{item.title}</li>
+            <li onClick={ () => setCurrentId(item._id) } key={item._id} className="collection-item"><div><h5>{item.title}</h5><p>{item.content}<a hfre="#" className="secondary-content"><i className="material-icons">delete</i></a></p></div></li>
             )) }
-          <li>ola</li>
-          <li>ola</li>
         </ul>
         }
     </div>
