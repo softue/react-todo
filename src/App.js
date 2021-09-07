@@ -10,7 +10,7 @@ https://www.taniarascia.com/getting-started-with-react/
 import {useEffect, useState} from "react";
 //import logo from './logo.svg'
 import './App.css';
-import { createTodo, readTodos } from './api';
+import { createTodo, readTodos, updateTodo, deleteTodo } from './functions';
 import Preloader from './components/Preloader';
 
 function App() {
@@ -22,7 +22,7 @@ const [ currentId, setCurrentId ] = useState(0);
 const fetchData = async() => {
   const result = await readTodos();
   console.log(result);
-  setTodos(result.data);
+  setTodos(result);
   console.log(todos);
 }
 
@@ -49,17 +49,27 @@ function clear() {
 }
 
 const onSubmitHandler = async (e) => {
+  let result;
   e.preventDefault();
-  const result = await createTodo(todo);
+  if ( currentId === 0 )
+    result = await createTodo(todo);
+  else
+    result = await updateTodo(todo);
   console.log(result);
-  //fetchData();
-  setTodos([...todos, result.data]);
+  fetchData();
+  //setTodos([...todos, result]);
 }
 
-  return (
+const onClickDeleteHandler = async(id) => {
+  console.log('delete', id);
+  await deleteTodo(id);
+  fetchData();
+}
+
+
+return (
     <div className="container">
       <div className="row">
-      <pre>{JSON.stringify(todo)}</pre>
       <form className="col s12" onSubmit={onSubmitHandler}>
           <div className="row">
             <div className="input-field col s6">
@@ -85,7 +95,7 @@ const onSubmitHandler = async (e) => {
         { !todos ? <Preloader /> : 
         <ul className="collection">
           { todos.map(item => (
-            <li onClick={ () => setCurrentId(item._id) } key={item._id} className="collection-item"><div><h5>{item.title}</h5><p>{item.content}<a hfre="#" className="secondary-content"><i className="material-icons">delete</i></a></p></div></li>
+            <li onClick={ () => setCurrentId(item._id) } key={item._id} className="collection-item"><div><h5>{item.title}</h5><p>{item.content}<a href="#!" className="secondary-content"><i className="material-icons" onClick={() => onClickDeleteHandler(item._id)}>delete</i></a></p></div></li>
             )) }
         </ul>
         }

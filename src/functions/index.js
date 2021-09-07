@@ -17,3 +17,21 @@ export const createTodo = async (todo) =>  {
         console.log(error);
     }
 }
+
+export const updateTodo = async (todo) =>  {
+    try {
+        const {data} = await api.updateTodo(todo);
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const deleteTodo = async (id) =>  {
+    try {
+        const {data} = await api.deleteTodo(id);
+        return data;
+    } catch (error) {
+        console.log(error);
+    }
+}
