@@ -63,6 +63,7 @@ const onSubmitHandler = async (e) => {
 const onClickDeleteHandler = async(id) => {
   console.log('delete', id);
   await deleteTodo(id);
+  clear();
   fetchData();
 }
 
